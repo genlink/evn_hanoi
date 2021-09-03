@@ -3,7 +3,7 @@
   "name": "evn_hanoi",
   "documentation": "https://github.com/genlink/evn_hanoi",
   "requirements": [],
-  "version": "2021.8.29",
+  "version": "2021.09.03",
   "codeowners": ["@Tam.NT"],
   "quality_scale": "internal"
 }
