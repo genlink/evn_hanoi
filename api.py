@@ -65,7 +65,7 @@ class EVNHN:
                 kt_thanh_toan = tt_hoadon.find('TIEN_NO')
                 kt_thanh_toan = kt_thanh_toan.text
                 tt_san_luong = tt_hoadon.find('DIEN_TTHU')
-                tt_san_luong = tt_san_luong.text
+                tt_san_luong = tt_san_luong.text+' kWh'
             tien_dien.append(tt_tiendien)
             thanh_toan.append(kt_thanh_toan)
             san_luong.append(tt_san_luong)
@@ -73,6 +73,8 @@ class EVNHN:
         for i in range(len(thanh_toan)):
             if thanh_toan[i] == '0' :
                 thanh_toan[i] = 'Đã thanh toán'
+            elif thanh_toan[i] == 'Chưa cập nhật':
+                thanh_toan[i] = 'Chưa cập nhật'
             else:
                 thanh_toan[i] = 'Chưa thanh toán'+thanh_toan[i]
 

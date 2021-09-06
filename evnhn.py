@@ -22,14 +22,14 @@ class AddSensor:
 
 class SensorAttribute(AddSensor):
     def get_evnhanoi(self):
-        api = api.EVNHN()
-        data_out = api.get_evn_hanoi(self._makhach)
+        data = api.EVNHN()
+        data_out = data.get_evn_hanoi(self._makhach)
         self._state = data_out['state']
         self._attribute["state_class"] = 'measurement'
         today_date = datetime.datetime.now()
-        sanluong_thangtruocnua = 'Tháng ' + data_out['thang_truoc_nua'] + ': ' + data_out['sanluong_thangtruocnua'] + ' kWh'
-        sanluong_thangtruoc = 'Tháng ' + data_out['thang_truoc'] + ': ' + data_out['sanluong_thangtruoc'] + ' kWh'
-        sanluong_thangnay = 'Tháng ' + data_out['thang_nay'] + ': ' + data_out['sanluong_thangnay'] + ' kWh'
+        sanluong_thangtruocnua = 'Tháng ' + data_out['thang_truoc_nua'] + ': ' + data_out['sanluong_thangtruocnua']
+        sanluong_thangtruoc = 'Tháng ' + data_out['thang_truoc'] + ': ' + data_out['sanluong_thangtruoc']
+        sanluong_thangnay = 'Tháng ' + data_out['thang_nay'] + ': ' + data_out['sanluong_thangnay']
         tien_thangtruocnua = 'Tháng ' + data_out['thang_truoc_nua'] + ':' + data_out['tiendien_thangtruocnua']
         tien_thangtruoc = 'Tháng ' + data_out['thang_truoc'] + ':' + data_out['tiendien_thangtruoc']
         tien_thangnay = 'Tháng ' + data_out['thang_nay'] + ':' + data_out['tiendien_thangnay']
