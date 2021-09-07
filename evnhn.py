@@ -33,7 +33,8 @@ class SensorAttribute(AddSensor):
         tien_thangtruocnua = 'Tháng ' + data_out['thang_truoc_nua'] + ':' + data_out['tiendien_thangtruocnua']
         tien_thangtruoc = 'Tháng ' + data_out['thang_truoc'] + ':' + data_out['tiendien_thangtruoc']
         tien_thangnay = 'Tháng ' + data_out['thang_nay'] + ':' + data_out['tiendien_thangnay']
-        self._attribute["last_reset"] = today_date.strftime("%d/%m/%Y - %H:%M:%S")
+        self._attribute["last_update"] = today_date.strftime("%d/%m/%Y - %H:%M:%S")
+        self._attribute["last_reset"] = today_date.strftime("%Y/%m/%d T00:00:00+00:00")
         self._attribute["ma_khach"] = self._makhach
         self._attribute["ma_ddo"] = data_out['ma_ddo']
         self._attribute["sanluong_day1"] = data_out['sanluong_day1']
