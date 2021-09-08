@@ -9,6 +9,7 @@ import logging
 import requests, json, time
 from bs4 import BeautifulSoup
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 import locale
 
 locale.setlocale(locale.LC_ALL, 'vi_VN.UTF-8')
@@ -18,6 +19,12 @@ class EVNHN:
     INTERVAL_6MIN = "6min"
     INTERVAL_DAY = "day"
 
+    def next_month(self):
+        today_date = datetime.datetime.now()
+        d = today_date+relativedelta(day=31)
+        next_month = d+ datetime.timedelta(days=1)
+        next_month = next_month.strftime("%m")
+        return next_month
 
     def _get_details(self,makhachhang):
         self.makhachhang = makhachhang
@@ -50,15 +57,27 @@ class EVNHN:
         thanh_toan = []
         san_luong = []
         for num in range(int(thang[2]),int(thang[0])+1):
-            print(num)
             url_tt_hoadon = self.mainURL+'get_hdon_ttoan?ma_kh='+ma_khachhang+'&ky=1&thang='+str(num)+'&nam='+str(nam_hientai)
             tt_hoadon = requests.get(url_tt_hoadon)
             tt_hoadon = BeautifulSoup(tt_hoadon.text, 'xml')
             check = tt_hoadon.find('NewDataSet')
             if not check :
-                tt_tiendien = 'Chưa cập nhật'
-                tt_san_luong = 'Chưa cập nhật'
-                kt_thanh_toan = 'Chưa cập nhật'
+                next_month = self.next_month()
+                url = self.mainURL+'get_hdon_tracuu?ma_kh='+ma_khachhang+'&nam='+str(nam_hientai)+'&thang='+str(num)+'&thangsau='+next_month
+                data = requests.get(url)
+                data = BeautifulSoup(data.text, 'xml')
+                check = data.find('NewDataSet')
+                if not check : 
+                    tt_tiendien = 'Chưa cập nhật'
+                    tt_san_luong = 'Chưa cập nhật'
+                    kt_thanh_toan = 'Chưa cập nhật'
+                else :
+                    tt_san_luong = data.find('SAN_LUONG')
+                    tt_san_luong = tt_san_luong.text+ ' kWh'
+                    tt_tiendien = data.find('TONG_TIEN')
+                    tt_tiendien = tt_tiendien.text
+                    kt_thanh_toan = tt_tiendien
+
             else :
                 tt_tiendien = tt_hoadon.find('TONG_TIEN')
                 tt_tiendien = tt_tiendien.text
@@ -76,7 +95,7 @@ class EVNHN:
             elif thanh_toan[i] == 'Chưa cập nhật':
                 thanh_toan[i] = 'Chưa cập nhật'
             else:
-                thanh_toan[i] = 'Chưa thanh toán'+thanh_toan[i]
+                thanh_toan[i] = 'Chưa thanh toán '+thanh_toan[i]
 
 #        tien_thangtruocnua = locale.currency(float(tien_dien[0]), grouping=True)
 #        tien_thangtruoc = locale.currency(float(tien_dien[1]), grouping=True)

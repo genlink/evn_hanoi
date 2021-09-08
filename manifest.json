@@ -2,8 +2,8 @@
   "domain": "evn_hanoi",
   "name": "evn_hanoi",
   "documentation": "https://github.com/genlink/evn_hanoi",
-  "requirements": [],
-  "version": "2021.09.03",
+  "requirements": ["python-dateutil"],
+  "version": "2021.09.08",
   "codeowners": ["@Tam.NT"],
   "quality_scale": "internal"
 }
