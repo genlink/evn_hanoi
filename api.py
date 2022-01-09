@@ -25,12 +25,53 @@ class EVNHN:
         next_month = d+ datetime.timedelta(days=1)
         next_month = next_month.strftime("%m")
         return next_month
-
+    def get_hdon_tracuu(self,makhachhang,thang,nam):
+        self.mainURL = 'http://42.112.213.225:8050/Service.asmx/'
+        self.makhachhang = makhachhang
+        self.thang = thang
+        self.nam = nam
+        next_month = self.next_month()
+        url = self.mainURL+'get_hdon_tracuu?ma_kh='+self.makhachhang+'&nam='+str(self.nam)+'&thang='+str(self.thang)+'&thangsau='+next_month
+        data = requests.get(url)
+        data = BeautifulSoup(data.text, 'xml')
+        check = data.find('NewDataSet')
+        if not check : 
+            tt_tiendien = 'Chưa cập nhật'
+            tt_san_luong = 'Chưa cập nhật'
+            kt_thanh_toan = 'Chưa cập nhật'
+        else :
+            tt_san_luong = data.find('SAN_LUONG')
+            tt_san_luong = tt_san_luong.text+ 'kWh'
+            tt_tiendien = data.find('TONG_TIEN')
+            tt_tiendien = tt_tiendien.tex
+            kt_thanh_toan = tt_tiendien
+        return tt_tiendien,kt_thanh_toan,tt_san_luong
+    def get_hdon_ttoan(self,makhachhang,thang,nam):
+        self.mainURL = 'http://42.112.213.225:8050/Service.asmx/'
+        self.makhachhang = makhachhang
+        self.thang = thang
+        self.nam = nam
+        url_tt_hoadon = self.mainURL+'get_hdon_ttoan?ma_kh='+self.makhachhang+'&ky=1&thang='+str(self.thang)+'&nam='+str(self.nam)
+        tt_hoadon = requests.get(url_tt_hoadon)
+        tt_hoadon = BeautifulSoup(tt_hoadon.text, 'xml')
+        check = tt_hoadon.find('NewDataSet')
+        if not check :
+            data = self.get_hdon_tracuu(self.makhachhang,self.thang,self.nam)
+            tt_tiendien = data[0]
+            kt_thanh_toan = data[1]
+            tt_san_luong = data[2]
+        else :
+            tt_tiendien = tt_hoadon.find('TONG_TIEN')
+            tt_tiendien = tt_tiendien.text
+            kt_thanh_toan = tt_hoadon.find('TIEN_NO')
+            kt_thanh_toan = kt_thanh_toan.text
+            tt_san_luong = tt_hoadon.find('DIEN_TTHU')
+            tt_san_luong = tt_san_luong.text+' kWh'
+        return tt_tiendien,kt_thanh_toan,tt_san_luong
     def _get_details(self,makhachhang):
         self.makhachhang = makhachhang
         self.mainURL = 'http://42.112.213.225:8050/Service.asmx/'
-        ma_khachhang = self.makhachhang
-        url_ma_ddo = self.mainURL + 'CHECK_DDO?ma_kh=' + ma_khachhang
+        url_ma_ddo = self.mainURL + 'CHECK_DDO?ma_kh=' + self.makhachhang
         ma_ddo = requests.get(url_ma_ddo)
         ma_ddo = ma_ddo.text
         ma_ddo = ma_ddo.split('<MA_DDO>')
@@ -56,9 +97,9 @@ class EVNHN:
         tien_dien =[]
         thanh_toan = []
         san_luong = []
-#        thang[0] = '02'
-#        thang[1] = '01'
-#        thang[2] = '12'
+#        thang[0] = '03'
+#        thang[1] = '02'
+#        thang[2] = '01'
         if int(thang[0]) == 1:
             for num in range(11,14):
                 today_date = datetime.datetime.now()
@@ -70,33 +111,10 @@ class EVNHN:
                     currentMonth = 1
                 else: 
                     currentMonth = num
-                url_tt_hoadon = self.mainURL+'get_hdon_ttoan?ma_kh='+ma_khachhang+'&ky=1&thang='+str(currentMonth)+'&nam='+str(nam_hientai)
-                tt_hoadon = requests.get(url_tt_hoadon)
-                tt_hoadon = BeautifulSoup(tt_hoadon.text, 'xml')
-                check = tt_hoadon.find('NewDataSet')
-                if not check :
-                    next_month = self.next_month()
-                    url = self.mainURL+'get_hdon_tracuu?ma_kh='+ma_khachhang+'&nam='+str(nam_hientai)+'&thang='+str(currentMonth)+'&thangsau='+next_month
-                    data = requests.get(url)
-                    data = BeautifulSoup(data.text, 'xml')
-                    check = data.find('NewDataSet')
-                    if not check : 
-                        tt_tiendien = 'Chưa cập nhật'
-                        tt_san_luong = 'Chưa cập nhật'
-                        kt_thanh_toan = 'Chưa cập nhật'
-                    else :
-                        tt_san_luong = data.find('SAN_LUONG')
-                        tt_san_luong = tt_san_luong.text+ 'kWh'
-                        tt_tiendien = data.find('TONG_TIEN')
-                        tt_tiendien = tt_tiendien.text
-                        kt_thanh_toan = tt_tiendien
-                else :
-                    tt_tiendien = tt_hoadon.find('TONG_TIEN')
-                    tt_tiendien = tt_tiendien.text
-                    kt_thanh_toan = tt_hoadon.find('TIEN_NO')
-                    kt_thanh_toan = kt_thanh_toan.text
-                    tt_san_luong = tt_hoadon.find('DIEN_TTHU')
-                    tt_san_luong = tt_san_luong.text+' kWh'
+                data = self.get_hdon_ttoan(self.makhachhang,currentMonth,nam_hientai)
+                tt_tiendien = data[0]
+                kt_thanh_toan = data[1]
+                tt_san_luong = data[2]
                 tien_dien.append(tt_tiendien)
                 thanh_toan.append(kt_thanh_toan)
                 san_luong.append(tt_san_luong)
@@ -109,71 +127,24 @@ class EVNHN:
                     today_date = datetime.datetime.now()
                     nam_hientai = today_date.year
                     currentMonth = 1
-                elif int(num) == 14:
+                elif num == 14:
                     today_date = datetime.datetime.now()
                     nam_hientai = today_date.year
                     currentMonth = 2
                 else: 
                     currentMonth = num
-                url_tt_hoadon = self.mainURL+'get_hdon_ttoan?ma_kh='+ma_khachhang+'&ky=1&thang='+str(currentMonth)+'&nam='+str(nam_hientai)
-                tt_hoadon = requests.get(url_tt_hoadon)
-                tt_hoadon = BeautifulSoup(tt_hoadon.text, 'xml')
-                check = tt_hoadon.find('NewDataSet')
-                if not check :
-                    next_month = self.next_month()
-                    url = self.mainURL+'get_hdon_tracuu?ma_kh='+ma_khachhang+'&nam='+str(nam_hientai)+'&thang='+str(currentMonth)+'&thangsau='+next_month
-                    data = requests.get(url)
-                    data = BeautifulSoup(data.text, 'xml')
-                    check = data.find('NewDataSet')
-                    if not check : 
-                        tt_tiendien = 'Chưa cập nhật'
-                        tt_san_luong = 'Chưa cập nhật'
-                        kt_thanh_toan = 'Chưa cập nhật'
-                    else :
-                        tt_san_luong = data.find('SAN_LUONG')
-                        tt_san_luong = tt_san_luong.text+ 'kWh'
-                        tt_tiendien = data.find('TONG_TIEN')
-                        tt_tiendien = tt_tiendien.text
-                        kt_thanh_toan = tt_tiendien
-                else :
-                    tt_tiendien = tt_hoadon.find('TONG_TIEN')
-                    tt_tiendien = tt_tiendien.text
-                    kt_thanh_toan = tt_hoadon.find('TIEN_NO')
-                    kt_thanh_toan = kt_thanh_toan.text
-                    tt_san_luong = tt_hoadon.find('DIEN_TTHU')
-                    tt_san_luong = tt_san_luong.text+' kWh'
+                data = self.get_hdon_ttoan(self.makhachhang,currentMonth,nam_hientai)
+                tt_tiendien = data[0]
+                kt_thanh_toan = data[1]
+                tt_san_luong = data[2]
                 tien_dien.append(tt_tiendien)
                 thanh_toan.append(kt_thanh_toan)
                 san_luong.append(tt_san_luong)
         for num in range(int(thang[2]),int(thang[0])+1):
-            url_tt_hoadon = self.mainURL+'get_hdon_ttoan?ma_kh='+ma_khachhang+'&ky=1&thang='+str(num)+'&nam='+str(nam_hientai)
-            tt_hoadon = requests.get(url_tt_hoadon)
-            tt_hoadon = BeautifulSoup(tt_hoadon.text, 'xml')
-            check = tt_hoadon.find('NewDataSet')
-            if not check :
-                next_month = self.next_month()
-                url = self.mainURL+'get_hdon_tracuu?ma_kh='+ma_khachhang+'&nam='+str(nam_hientai)+'&thang='+str(num)+'&thangsau='+next_month
-                data = requests.get(url)
-                data = BeautifulSoup(data.text, 'xml')
-                check = data.find('NewDataSet')
-                if not check : 
-                    tt_tiendien = 'Chưa cập nhật'
-                    tt_san_luong = 'Chưa cập nhật'
-                    kt_thanh_toan = 'Chưa cập nhật'
-                else :
-                    tt_san_luong = data.find('SAN_LUONG')
-                    tt_san_luong = tt_san_luong.text+ 'kWh'
-                    tt_tiendien = data.find('TONG_TIEN')
-                    tt_tiendien = tt_tiendien.tex
-                    kt_thanh_toan = tt_tiendien
-
-            else :
-                tt_tiendien = tt_hoadon.find('TONG_TIEN')
-                tt_tiendien = tt_tiendien.text
-                kt_thanh_toan = tt_hoadon.find('TIEN_NO')
-                kt_thanh_toan = kt_thanh_toan.text
-                tt_san_luong = tt_hoadon.find('DIEN_TTHU')
-                tt_san_luong = tt_san_luong.text+' kWh'
+            data = self.get_hdon_ttoan(self.makhachhang,num,nam_hientai)
+            tt_tiendien = data[0]
+            kt_thanh_toan = data[1]
+            tt_san_luong = data[2]
             tien_dien.append(tt_tiendien)
             thanh_toan.append(kt_thanh_toan)
             san_luong.append(tt_san_luong)
