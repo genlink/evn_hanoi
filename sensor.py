@@ -70,7 +70,7 @@ class EvnHanoiSensor(Entity):
         return self.haversion.evnhanoi.state
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return attributes for the sensor."""
         return self.haversion.evnhanoi.attribute
 
